@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+</head>
+
+<body>
+	<script src="https://cdn.jsdelivr.net/npm/svg-path-commander/dist/svg-path-commander.js"></script>
+
+	<textarea id="svg" style="width:100%; display:block" rows="30" placeholder="Сюда svg path..."></textarea>
+	<textarea id="result" style="width:100%; display:block" rows="30" placeholder="Тут будут areas"></textarea>
+
+	<script>
+
+		let svg = document.querySelector('#svg');
+		let result = document.querySelector('#result');
+
+		svg.addEventListener('input', e=>{
+			parser = new DOMParser();
+			let svgdoc = parser.parseFromString(svg.value, "image/svg+xml");
+			let paths = svgdoc.querySelectorAll('path');
+
+			let areas = '';
+			for (const path of paths) {
+				let d = path.getAttribute('d');
+				let extractedCoordinates = SVGPathCommander.normalizePath(d);
+
+				let coords = extractedCoordinates.reduce(function(accumulator, currentValue){
+					if(currentValue[2]){
+						accumulator += `${currentValue[1]},${currentValue[2]},`	
+					}
+					
+					return accumulator
+				},'').replace(/\,$/, '')
+
+				areas += `<area shape="poly" coords="${coords}"/>\n`;
+			}
+
+			result.value = areas;
+		})
+	</script>
+</body>
+</html>
